@@ -61,6 +61,7 @@ nav:
       - The basics: in-depth/client/index.md
       - Authentication: in-depth/client/auth.md
       - Online operations: in-depth/client/online.md
+      - Encrypted offline store: in-depth/client/encryption.md
       - Advanced topics:
         - MAUI AOT: in-depth/client/advanced/maui-aot.md
   - Samples:

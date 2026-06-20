@@ -54,6 +54,47 @@ The `CommunityToolkit.Datasync.Client.EncryptedSqlite` package provides encrypti
 !!! note Never hard-code the key
     The encryption key should come from a secure source such as the device keychain/keystore, a user-derived passphrase, or a secret store. Do not hard-code it in source or configuration.
 
+## Generate and store the key on first run
+
+The toolkit does not generate or store the key for you &mdash; that is the application's responsibility. A common pattern is to **generate a random key the first time the application runs and store it in the platform secure store**, then reuse the same key on every later launch. The database can only be opened with that key, so keep it safe and consider backing it up if losing it would mean losing the data.
+
+On .NET MAUI, use [`SecureStorage`](https://learn.microsoft.com/dotnet/maui/platform-integration/storage/secure-storage) (backed by the iOS/macOS Keychain, the Android KeyStore, and Windows DPAPI):
+
+        using System.Security.Cryptography;
+        using Microsoft.Maui.Storage;
+
+        public static class EncryptionKeyProvider
+        {
+            private const string KeyName = "offline-db-key";
+
+            public static async Task<string> GetOrCreateKeyAsync()
+            {
+                string? key = await SecureStorage.Default.GetAsync(KeyName);
+                if (string.IsNullOrEmpty(key))
+                {
+                    // First run: generate a 256-bit key and persist it to the secure store.
+                    key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+                    await SecureStorage.Default.SetAsync(KeyName, key);
+                }
+
+                return key;
+            }
+        }
+
+Resolve the key before configuring the context (for example during start-up) and pass it to `UseEncryptedSqlite`. The [TodoApp.MAUI.Encrypted sample](../../samples/todoapp/maui-encrypted.md) wires this up end-to-end.
+
+### On other platforms
+
+`SecureStorage` is MAUI-only. On other clients, generate the key the same way (`RandomNumberGenerator.GetBytes(32)`, base64-encoded, created once and reused) but persist it in that platform's secure store:
+
+* **Windows / WinUI / WPF** &mdash; Windows Credential Locker (`PasswordVault`) or DPAPI (`ProtectedData`).
+* **macOS / iOS** &mdash; the Keychain.
+* **Android** &mdash; the Android KeyStore (for example via EncryptedSharedPreferences).
+* **Linux** &mdash; the Secret Service API / libsecret (GNOME Keyring, KWallet).
+* **Avalonia / Uno Platform** &mdash; use the platform options above, or a community secure-storage plugin for your framework.
+
+In every case the rule is the same: generate once on first run, store it securely, and never hard-code it.
+
 ## Changing the key
 
 Use `RekeyEncryptedSqlite` on a connection opened with the current key to re-encrypt the database with a new key:

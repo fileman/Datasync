@@ -69,6 +69,7 @@ nav:
         - The server: samples/todoapp/server.md
         - Avalonia: samples/todoapp/avalonia.md
         - MAUI: samples/todoapp/maui.md
+        - "MAUI (encrypted)": samples/todoapp/maui-encrypted.md
         - "Uno Plaform": samples/todoapp/unoplatform.md
         - WinUI3: samples/todoapp/winui3.md
         - WPF: samples/todoapp/wpf.md

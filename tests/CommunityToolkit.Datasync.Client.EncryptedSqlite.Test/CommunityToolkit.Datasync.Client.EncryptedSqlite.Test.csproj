@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
   <!--
     This project intentionally does NOT reference TestCommon: TestCommon brings the full
     Microsoft.EntityFrameworkCore.Sqlite package (the unencrypted SQLitePCLRaw.bundle_e_sqlite3 bundle), which would

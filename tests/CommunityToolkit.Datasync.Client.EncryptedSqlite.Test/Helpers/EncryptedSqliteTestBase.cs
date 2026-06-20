@@ -61,6 +61,17 @@ public abstract class EncryptedSqliteTestBase : IDisposable
 
     public void Dispose()
     {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing)
+        {
+            return;
+        }
+
         SqliteConnection.ClearAllPools();
         foreach (string suffix in new[] { string.Empty, "-wal", "-shm", "-journal" })
         {
@@ -77,7 +88,5 @@ public abstract class EncryptedSqliteTestBase : IDisposable
                 // Best-effort cleanup of temporary files; ignore failures.
             }
         }
-
-        GC.SuppressFinalize(this);
     }
 }

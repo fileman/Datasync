@@ -40,19 +40,13 @@ public sealed class EncryptedSqliteOptions
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrEmpty(password);
 
-        using SqliteCommand command = connection.CreateCommand();
-
-        // PRAGMA values cannot be parameterized, so quote the key safely via the SQLite quote() function rather
-        // than concatenating the caller-supplied password directly into the statement.
-        command.CommandText = "SELECT quote($password);";
-        _ = command.Parameters.AddWithValue("$password", password);
-        string quotedKey = (string)command.ExecuteScalar()!;
-        command.Parameters.Clear();
-
+        // The cipher configuration and key must be applied as the very first statements on the connection: when
+        // opening an existing encrypted database, no other statement (not even SELECT quote(...)) can run until the
+        // key has been set, otherwise SQLite reports "file is not a database".
         StringBuilder pragmas = new();
         if (Cipher is not null)
         {
-            _ = pragmas.Append($"PRAGMA cipher = '{Cipher}';");
+            _ = pragmas.Append($"PRAGMA cipher = {SqliteLiteral.Quote(Cipher)};");
         }
 
         if (LegacyCompatibility is int legacy)
@@ -60,9 +54,12 @@ public sealed class EncryptedSqliteOptions
             _ = pragmas.Append($"PRAGMA legacy = {legacy};");
         }
 
-        _ = pragmas.Append($"PRAGMA key = {quotedKey};");
+        _ = pragmas.Append($"PRAGMA key = {SqliteLiteral.Quote(password)};");
 
+        using SqliteCommand command = connection.CreateCommand();
+#pragma warning disable CA2100 // Values are escaped via SqliteLiteral.Quote; PRAGMA arguments cannot be parameterized.
         command.CommandText = pragmas.ToString();
+#pragma warning restore CA2100
         _ = command.ExecuteNonQuery();
     }
 }

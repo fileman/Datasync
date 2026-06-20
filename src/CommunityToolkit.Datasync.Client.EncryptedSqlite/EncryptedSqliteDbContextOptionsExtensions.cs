@@ -93,13 +93,14 @@ public static class EncryptedSqliteDbContextOptionsExtensions
 
         using SqliteCommand command = connection.CreateCommand();
 
-        // PRAGMA values cannot be parameterized, so quote the new key safely via the SQLite quote() function.
-        command.CommandText = "SELECT quote($password);";
-        _ = command.Parameters.AddWithValue("$password", newPassword);
-        string quotedKey = (string)command.ExecuteScalar()!;
-        command.Parameters.Clear();
+        // PRAGMA rekey is not supported in WAL journal mode (the SQLite3 Multiple Ciphers build opens databases in
+        // WAL by default), so switch to a rollback journal before re-keying.
+        command.CommandText = "PRAGMA journal_mode = DELETE;";
+        _ = command.ExecuteNonQuery();
 
-        command.CommandText = $"PRAGMA rekey = {quotedKey};";
+#pragma warning disable CA2100 // The key is escaped via SqliteLiteral.Quote; PRAGMA arguments cannot be parameterized.
+        command.CommandText = $"PRAGMA rekey = {SqliteLiteral.Quote(newPassword)};";
+#pragma warning restore CA2100
         _ = command.ExecuteNonQuery();
     }
 }

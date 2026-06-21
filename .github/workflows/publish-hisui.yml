@@ -1,0 +1,64 @@
+name: Publish Hisui.Datasync packages
+
+# Fork-only workflow: packs the two Hisui.Datasync.* packages (the bundle-less client + the
+# encrypted SQLite store that upstream rejected) and pushes them to this repo's private GitHub
+# Packages feed. The package version comes from <Version> in each csproj (do NOT pass -p:Version,
+# which would override it). GitHub Packages cannot overwrite an existing version, so bump the
+# csproj <Version> before re-running. Unsigned is fine for GitHub Packages.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/CommunityToolkit.Datasync.Client/**'
+      - 'src/CommunityToolkit.Datasync.Client.EncryptedSqlite/**'
+      - '.github/workflows/publish-hisui.yml'
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  NuGetDirectory: ${{ github.workspace }}/nuget
+  GitHubFeed: 'https://nuget.pkg.github.com/fileman/index.json'
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Pack Hisui.Datasync.Client.EncryptedSqlite (also builds + packs the client)
+        run: >
+          dotnet pack
+          src/CommunityToolkit.Datasync.Client.EncryptedSqlite/CommunityToolkit.Datasync.Client.EncryptedSqlite.csproj
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --output ${{ env.NuGetDirectory }}
+
+      - name: Pack Hisui.Datasync.Client
+        run: >
+          dotnet pack
+          src/CommunityToolkit.Datasync.Client/CommunityToolkit.Datasync.Client.csproj
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --output ${{ env.NuGetDirectory }}
+
+      - name: Push to GitHub Packages
+        run: >
+          dotnet nuget push
+          "${{ env.NuGetDirectory }}/*.nupkg"
+          --source ${{ env.GitHubFeed }}
+          --api-key ${{ secrets.GITHUB_TOKEN }}
+          --skip-duplicate

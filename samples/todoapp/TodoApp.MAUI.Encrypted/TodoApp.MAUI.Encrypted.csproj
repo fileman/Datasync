@@ -56,13 +56,14 @@
   </ItemGroup>
 
   <!--
-    This sample demonstrates the encrypted offline store, which lives in the
-    CommunityToolkit.Datasync.Client.EncryptedSqlite package.  Until that package is published to NuGet it
-    is referenced from source; reference both the client and the encrypted-store project so their versions
-    stay aligned and exactly one SQLitePCLRaw bundle (the SQLite3 Multiple Ciphers bundle that
-    EncryptedSqlite brings) is present.  Once the package ships, replace these with:
-        <PackageReference Include="CommunityToolkit.Datasync.Client" Version="..." />
-        <PackageReference Include="CommunityToolkit.Datasync.Client.EncryptedSqlite" Version="..." />
+    This sample demonstrates the encrypted offline store. The feature was rejected upstream, so it ships
+    as a fork under our own IDs on a public GitHub Packages feed: Hisui.Datasync.Client[.EncryptedSqlite].
+    Inside this repo it is referenced from source so the sample builds in-solution without feed auth;
+    reference both the client and the encrypted-store project so their versions stay aligned and exactly
+    one SQLitePCLRaw bundle (the SQLite3 Multiple Ciphers bundle that EncryptedSqlite brings) is present.
+    External consumers use the packages instead:
+        <PackageReference Include="Hisui.Datasync.Client" Version="..." />
+        <PackageReference Include="Hisui.Datasync.Client.EncryptedSqlite" Version="..." />
   -->
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />

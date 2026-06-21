@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Adds an encrypted SQLite offline store (via SQLite3 Multiple Ciphers - free, no paid license) for the Datasync Toolkit offline client.</Description>
+    <Description>Adds an encrypted SQLite offline store (via SQLite3 Multiple Ciphers - free, no paid license) for the Datasync Toolkit offline client. Pair with the matching Hisui.Datasync.Client version.</Description>
+    <PackageId>Hisui.Datasync.Client.EncryptedSqlite</PackageId>
+    <Version>10.0.1</Version>
+    <Authors>Microsoft.Toolkit,dotnetfoundation,fileman</Authors>
+    <RepositoryUrl>https://github.com/fileman/Datasync</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/fileman/Datasync</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

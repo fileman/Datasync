@@ -1,6 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The client capabilities for developing applications using the Datasync Toolkit.</Description>
+    <Description>The client capabilities for developing applications using the Datasync Toolkit. Fork of CommunityToolkit.Datasync.Client with a bundle-less SQLite provider; pair with Hisui.Datasync.Client.EncryptedSqlite.</Description>
+    <PackageId>Hisui.Datasync.Client</PackageId>
+    <Version>10.0.1</Version>
+    <Authors>Microsoft.Toolkit,dotnetfoundation,fileman</Authors>
+    <RepositoryUrl>https://github.com/fileman/Datasync</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/fileman/Datasync</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

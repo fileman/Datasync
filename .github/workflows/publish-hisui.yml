@@ -41,19 +41,16 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Pack Hisui.Datasync.Client.EncryptedSqlite (also builds + packs the client)
+      # These projects set GeneratePackageOnBuild=true, so `dotnet build` produces the .nupkg
+      # (and `dotnet pack` fails with NU5026 against it). Building the EncryptedSqlite project
+      # also builds + packs its ProjectReference (the client); PackageOutputPath collects both
+      # nupkgs into one clean folder for the push step.
+      - name: Build + pack Hisui.Datasync packages
         run: >
-          dotnet pack
+          dotnet build
           src/CommunityToolkit.Datasync.Client.EncryptedSqlite/CommunityToolkit.Datasync.Client.EncryptedSqlite.csproj
           --configuration ${{ env.DOTNET_CONFIGURATION }}
-          --output ${{ env.NuGetDirectory }}
-
-      - name: Pack Hisui.Datasync.Client
-        run: >
-          dotnet pack
-          src/CommunityToolkit.Datasync.Client/CommunityToolkit.Datasync.Client.csproj
-          --configuration ${{ env.DOTNET_CONFIGURATION }}
-          --output ${{ env.NuGetDirectory }}
+          -p:PackageOutputPath=${{ env.NuGetDirectory }}
 
       - name: Push to GitHub Packages
         run: >

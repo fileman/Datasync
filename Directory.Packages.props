@@ -40,6 +40,16 @@
     <PackageVersion Include="NSwag.AspNetCore" Version="14.7.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="2.3.5" />
+    <!--
+      Pin the transitive plaintext SQLitePCLRaw bundle (pulled in by Microsoft.EntityFrameworkCore.Sqlite)
+      up to 3.0.3. EF Core 10.0.9 still resolves bundle_e_sqlite3 2.1.11, whose native lib
+      (SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11) is vulnerable to CVE-2025-6965 / GHSA-2m69-gcr7-jv3q (high).
+      The 3.0.x bundle replaces lib.e_sqlite3 with SourceGear.sqlite3 (SQLite >= 3.50.4), dropping the
+      vulnerable package from the graph. CentralPackageTransitivePinningEnabled promotes this to the
+      affected (test) projects with no per-project PackageReference. Pin only the bundle - NOT
+      SQLitePCLRaw.core - so the SQLite3MC (encrypted-store) graph keeps its own 2.x core.
+    -->
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.2.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="$(DotNetVersion)" />
     <PackageVersion Include="System.Linq.Async" Version="7.0.0" />

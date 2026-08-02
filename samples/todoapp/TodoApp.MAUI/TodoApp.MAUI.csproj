@@ -29,6 +29,32 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+    <!--
+      net10.0-ios enables the IL trim analyzer during `dotnet build` (not just `dotnet publish`),
+      because iOS app projects are marked trimmable by the SDK by default. This CI pipeline only
+      ever runs `dotnet build` (see build-samples-todoapp-maui.yml) - it never publishes with
+      PublishTrimmed, so no actual IL trimming/linking happens here; the analyzer is purely
+      diagnostic noise on framework APIs (e.g. EF Core's DbContext(DbContextOptions) ctor) that
+      their own maintainers have marked [RequiresUnreferencedCode]. Setting this also sets
+      EnableTrimAnalyzer=false (see Microsoft.NET.ILLink.targets), which disables the analyzer
+      pass itself, not just its warning output. Scoped to the iOS TFM only, since the
+      Android/Windows heads haven't been confirmed to surface this warning.
+      See https://github.com/CommunityToolkit/Datasync/issues/521.
+    -->
+    <SuppressTrimAnalysisWarnings Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">true</SuppressTrimAnalysisWarnings>
+
+    <!--
+      MainPage.xaml has one binding (Entry.ReturnCommandParameter) that sets an explicit
+      Source={x:Reference ...} instead of relying on the page's BindingContext. By default,
+      XamlC skips compiling any binding with an explicit Source, falling back to slower
+      reflection-based binding and emitting an XC0025 warning. Opting into this project-wide
+      flag lets XamlC compile that binding too, now that it's annotated with the correct
+      x:DataType for its Source (see MainPage.xaml). This project has no other Source-based
+      bindings, so there's no risk of newly-surfaced x:DataType mismatches elsewhere.
+      See https://github.com/CommunityToolkit/Datasync/issues/517.
+    -->
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,10 +76,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Datasync.Client" Version="10.0.0" />
+    <PackageReference Include="CommunityToolkit.Datasync.Client" Version="10.1.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.40" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
+    <!-- Force the SQLitePCLRaw 3.x line to resolve NU1903 (GHSA-2m69-gcr7-jv3q) floated by CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. See #492. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>

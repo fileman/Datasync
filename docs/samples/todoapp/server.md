@@ -1,12 +1,8 @@
-+++
-title = "Sample Server"
-+++
-
-## A sample datasync server
+# A sample datasync server
 
 Our sample datasync server provides an "Azure Developer CLI" ready implementation of the TodoItems service required by our TodoApp client samples.  It uses Azure SQL as its backend.
 
-### Deploying the sample datasync server
+## Deploying the sample datasync server
 
 1. Download the [sample server](https://github.com/CommunityToolkit/Datasync/tree/main/samples/datasync-server) from our GitHub repository.
 
@@ -16,13 +12,13 @@ Our sample datasync server provides an "Azure Developer CLI" ready implementatio
 
    This will open up a browser.  If you encounter difficulties, refer to the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/) documentation.
 
-2. Run the `azd up` command:
-    
+1. Run the `azd up` command:
+
         azd up
 
    This will take approximately 5-15 minutes to deploy.  At the end of the process, you will be provided with the URL to your datasync service.  Record this URL for later use.
 
-### Decommissioning the datasync server
+## Decommissioning the datasync server
 
 You can easily decommission the datasync server using `azd down`.  This will remove all resources that were created by `azd up`.
 
@@ -109,10 +105,14 @@ Here is a typical table controller for the `TodoItem` entity:
         public TodoItemController(AppDbContext context) 
             : base(new EntityTableRepository<TodoItem>(context))
         {
+            // UnsafeEntityLogging is intentionally left at its secure default (false).
+            // This sample stores user-supplied TodoItem content (Title), so only the
+            // entity ID is logged; the full serialized entity is never written to the logs.
+            Options = new TableControllerOptions { UnsafeEntityLogging = false };
         }
     }
 
-In many respects, this datasync server is a standard ASP.NET Core Web API controller with minimal changes to support datasync services.
+In many respects, this datasync server is a standard ASP.NET Core Web API controller with minimal changes to support datasync services.  Note the explicit `UnsafeEntityLogging = false` above — this is the default value, but it is set explicitly here to demonstrate how you can control how much entity data is written to your logs.  See [the table controller options](../../in-depth/server/index.md#table-controller-options) for more information.
 
 The sample has support for [NSwag](../../in-depth/server/openapi/nswag.md) and [Swashbuckle](../../in-depth/server/openapi/swashbuckle.md).  Set the following in the `appsettings.json` (or `appsettings.Development.json`) file:
 

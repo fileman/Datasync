@@ -21,10 +21,10 @@ The `TodoItem` model is set up so that it contains the same metadata that the se
 
 These properties are implemented in the `OfflineClientEntity` abstract class.  You can use this in your own projects to ensure your datasync models have the right metadata.  The UI and service are wired using dependency injection provided by the [CommunityToolkit.MVVM] project.
 
-It's worthwhile taking some time to study the application prior to adding any new code to it. You can also consider using Avalonia, MAUI, WinUI3, or the Uno Platform for your application.  The Datasync Community Toolkit is based on .NET 8+ and does not have any client framework-specific code in it.
+It's worthwhile taking some time to study the application prior to adding any new code to it. You can also consider using Avalonia, MAUI, WinUI3, or the Uno Platform for your application.  The Datasync Community Toolkit is based on .NET 10.x or later and does not have any client framework-specific code in it.
 
 !!! info "Blazor usage"
-    While the Datasync Community Toolkit doesn't require any specific client-side technologies, offline usage requires access to a SQLite database.  Blazor is limited to online usage only.
+    While the Datasync Community Toolkit doesn't require any specific client-side technologies, offline usage requires access to a SQLite database.  Blazor is limited to online usage only.  See [Blazor WASM support](../../in-depth/client/advanced/blazor-wasm.md) for more information, and [our Blazor WASM sample](../../samples/todoapp/blazor-wasm.md) for a working example.
 
 ## Online operations
 
@@ -174,7 +174,7 @@ Each operation can take a `DatasyncServiceOptions` object with the following pro
 
 ## Querying for data
 
-The final method in our sample implementation is the query interface.  The `DatasyncServiceClient<TEntity>` class implements `TableQuery` - a subset of LINQ that is supported by our implementation of OData.  When the query is transmitted to the remote service, it is turned into an OData query string.  Full details are provided in the [in-depth documentation](https://communitytoolkit.github.io/Datasync/in-depth/client/online-operations/index.html#querying-for-data).  To query for all data:
+The final method in our sample implementation is the query interface.  The `DatasyncServiceClient<TEntity>` class implements `TableQuery` - a subset of LINQ that is supported by our implementation of OData.  When the query is transmitted to the remote service, it is turned into an OData query string.  Full details are provided in the [in-depth documentation](../../in-depth/client/online.md#querying-for-data).  To query for all data:
 
     public async Task<List<TodoItem>> GetAllTodoItemsAsync(CancellationToken cancellationToken = default)
       => await client.ToListAsync(cancellationToken);

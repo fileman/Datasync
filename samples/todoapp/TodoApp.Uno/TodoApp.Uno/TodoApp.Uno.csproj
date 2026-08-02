@@ -41,6 +41,45 @@
     </UnoFeatures>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
+    <!--
+      IL trim analyzer runs during `dotnet build` on these TFMs (SDK marks them trimmable by
+      default), but this CI pipeline never publishes with PublishTrimmed, so it's diagnostic
+      noise only. Same fix as #531. See #534.
+    -->
+    <SuppressTrimAnalysisWarnings Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'
+      ">true</SuppressTrimAnalysisWarnings>
+
+    <!--
+      MT7156: Uno.Resizetizer (unoresizetizer) rasterizes each SVG-sourced asset
+      (Assets/Icons/icon_foreground.svg, Assets/Images/back.svg, Assets/Splash/splash_screen.svg)
+      into both an unscaled base PNG and an explicit "scale-100" variant. On ios/maccatalyst these
+      collapse to the same BundleResource LogicalName (Apple bundling treats unscaled and "1x" as
+      identical), so one copy is silently dropped - benign, expected Resizetizer output on these
+      TFMs, not a duplicate-inclusion bug in this project's Assets/UnoIcon/UnoSplashScreen wiring.
+      See #541.
+    -->
+    <MSBuildWarningsAsMessages Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'
+      ">$(MSBuildWarningsAsMessages);MT7156</MSBuildWarningsAsMessages>
+
+    <!--
+      e_sqlite3 (bundled via SQLitePCLRaw.bundle_e_sqlite3, pinned for #492) exposes variadic
+      (varargs) native functions (sqlite3_config/sqlite3_db_config). The WebAssembly SDK's
+      build-time native-interop check flags every fixed-arity P/Invoke overload SQLitePCLRaw
+      ships to work around this (sqlite3_config_none, sqlite3_config_int, etc.) as WASM0001,
+      even though this sample's actual SQLite usage (in-memory EF Core CRUD via AppDbContext)
+      never calls sqlite3_config/sqlite3_db_config directly. This is diagnostic-only noise -
+      WASM0001 is a standard MSBuild task warning code (emitted via TaskLoggingHelper.LogWarning
+      in dotnet/runtime's WasmAppBuilder), so it honors NoWarn like any other build warning.
+      Same documented, NoWarn-suppressible pattern as
+      docs/in-depth/client/advanced/blazor-wasm.md. See #543.
+    -->
+    <NoWarn Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'">$(NoWarn);WASM0001</NoWarn>
+
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AddItem.png" />
@@ -61,10 +100,9 @@
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.Datasync.Client" />
-    <PackageReference Include="System.Formats.Asn1" />
+    <!-- Force the SQLitePCLRaw 3.x line to resolve NU1903 (GHSA-2m69-gcr7-jv3q) floated by CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. See #492. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
     <PackageReference Include="System.IO.Packaging" />
-    <PackageReference Include="System.Private.Uri" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\TodoListPage.xaml">

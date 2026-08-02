@@ -1,32 +1,30 @@
 # 🧰 Datasync Toolkit
 
-The Datasync Community Toolkit is a collection of libraries that implement a client-server system used for synchronizing data
-from the database table.  The Datasync Community Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
+The Datasync Community Toolkit is a collection of libraries that implement a client-server system used for synchronizing data from the database table.  The Datasync Community Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
 
 Currently, the library supports:
 
-* Server: [ASP.NET 8 or later](https://learn.microsoft.com/aspnet/core/)
-* Client: .NET 8 or later
+* Server: [ASP.NET Core 10.x or later](https://learn.microsoft.com/aspnet/core/)
+* Client: .NET clients using .NET 10.x or later
 
 The client platforms that have been tested include:
 
 * [Avalonia UI](https://www.avaloniaui.net/)
+* [Blazor WASM](https://learn.microsoft.com/en-us/aspnet/core/blazor/webassembly-build-tools-and-aot)
 * [.NET MAUI](https://dotnet.microsoft.com/apps/maui)
 * [Uno Platform](https://platform.uno/)
 * [Windows Presentation Framework (WPF)](https://learn.microsoft.com/dotnet/desktop/wpf/overview/?view=netdesktop-8.0)
 * [Windows UI Library (WinUI) 3](https://learn.microsoft.com/windows/apps/winui/winui3/)
 
-We support most databases that are supported by Entity Framework Core, along with an in-memory store and LiteDb.  Support for additional
-database types is easily added through our flexible repository pattern.
+We support most databases that are supported by Entity Framework Core, along with an in-memory store and LiteDb.  Support for additional database types is easily added through our flexible repository pattern.
 
 Other platforms may work, but have not been tested.
 
 ## 🙌 Getting Started
 
-Please take a look at the tutorials included in our [documentation](https://CommunityToolkit.github.io/Datasync).
+Please take a look at the tutorials included in our [documentation].
 
-You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, 
-Entity Framework Core, and the Datasync server libraries.  To install the template:
+You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, Entity Framework Core, and the Datasync server libraries.  To install the template:
 
 ```dotnetcli
 dotnet new -i CommunityToolkit.Datasync.Server.Template.CSharp
@@ -78,6 +76,26 @@ The majority of tests in the test suite provide [TestContainers](https://testcon
 
 > **NOTE**: The `.runsettings` file contains secrets.  It should not be checked in.  We have added this file to the `.gitignore` to ensure that it is
 > not checked into public GitHub repositories.
+
+## 📖 Building the documentation site
+
+The documentation site is built with [MkDocs](https://www.mkdocs.org/).  To build and serve it locally:
+
+```sh
+python3 -m venv .venv-docs
+source .venv-docs/bin/activate
+pip install mkdocs mkdocs-mermaid2-plugin
+
+mkdocs serve
+```
+
+Browse to [http://localhost:7000](http://localhost:7000) to view the site.  `mkdocs serve` watches the `docs` folder and live-reloads whenever you make changes.
+
+To produce a static build instead (the output is written to `./site`, which is git-ignored):
+
+```sh
+mkdocs build
+```
 
 ## 🌍 Roadmap
 

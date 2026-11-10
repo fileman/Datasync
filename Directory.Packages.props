@@ -17,7 +17,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.5.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.63.4" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.64.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFCoreVersion)" />
@@ -40,7 +40,7 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.10.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0" />
     <PackageVersion Include="Microsoft.OData.Core" Version="$(ODataVersion)" />
     <!--
       Microsoft.AspNetCore.OpenApi/NSwag.AspNetCore/Swashbuckle.AspNetCore all float a transitive
@@ -57,7 +57,7 @@
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.7.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="2.4.0" />
+    <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="2.6.1" />
     <!--
       Pin the transitive plaintext SQLitePCLRaw bundle (pulled in by Microsoft.EntityFrameworkCore.Sqlite)
       up to 3.0.3. EF Core 10.0.9 still resolves bundle_e_sqlite3 2.1.11, whose native lib
@@ -77,9 +77,9 @@
     <PackageVersion Include="TestContainers.MongoDb" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.MsSql" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="$(TestContainersVersion)" />
-    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.2" />
-    <PackageVersion Include="xunit.v3.core.mtp-v2" Version="4.0.2" />
-    <PackageVersion Include="xunit.v3.assert" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.3" />
+    <PackageVersion Include="xunit.v3.core.mtp-v2" Version="4.0.3" />
+    <PackageVersion Include="xunit.v3.assert" Version="4.0.3" />
     <PackageVersion Include="Ulid" Version="1.4.1" />
     <!-- XUnit.Combinatorial v2.x targets xUnit v3 (xunit.v3.extensibility.core) -->
     <PackageVersion Include="XUnit.Combinatorial" Version="2.1.43" />

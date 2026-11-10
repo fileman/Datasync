@@ -17,7 +17,6 @@ on:
       - '.github/workflows/publish-hisui.yml'
 
 env:
-  DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
@@ -30,16 +29,17 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          # SDK is pinned to the .NET 10 band by global.json (rollForward: latestFeature).
+          global-json-file: global.json
 
       # These projects set GeneratePackageOnBuild=true, so `dotnet build` produces the .nupkg
       # (and `dotnet pack` fails with NU5026 against it). Building the EncryptedSqlite project

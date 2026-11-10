@@ -204,6 +204,9 @@ When the push result is complete, the `PushResult` is returned.  This has the fo
 
 In addition, the operations queue is updated.  Completed operations are removed and failed operations are marked as failed.  You can use the `FailedRequests` property to see the exact error that was returned by the service.
 
+!!! note "Timeouts and network failures"
+    `FailedRequests` only records responses that were received from the service.  If a request cannot complete (for example, the `HttpClient.Timeout` elapses or the connection is refused), `PushAsync()` throws instead of returning a result: a `TimeoutException` for a timeout, or an `HttpRequestException` for other network failures.  Operations that completed before the failure are removed from the queue, and the operation that failed remains queued so it can be retried.  If you cancel the push yourself through the `CancellationToken`, an `OperationCanceledException` is thrown.
+
 ### Conflict resolution
 
 When a conflict resolver is configured, that will be used before a queued change is marked as failed.  In the case of a failed request, you can process the failed requests as follows:
@@ -237,8 +240,15 @@ public class ClientWinsConflictResolver : IConflictResolver
 
 The `IConflictResolver<T>` is the same as `IConflictResolver` with the notable exception that the `clientObject` and `serverObject` are typed instead of objects.  The `ConflictResolution` result model consists of two parts:
 
-* `Result` is either `ConflictResolutionResult.Client` (indicating that the client wins and the server entity should be overwritten) or `ConflictResolutionResult.Server` (indicating that the server wins and the client entity should be overwritten).
+* `Result` is one of the following:
+    * `ConflictResolutionResult.Client` indicates that the client wins and the server entity should be overwritten.  The entity is sent to the server as a "force" write with no `If-Match` header.
+    * `ConflictResolutionResult.Server` indicates that the server wins and the client entity should be overwritten.
+    * `ConflictResolutionResult.Merged` indicates that `Entity` was computed from the server entity (a merge).  The entity is sent to the server with an `If-Match` header set to the version of the server entity that the resolver received.
+    * `ConflictResolutionResult.Default` leaves the operation in the queue marked as failed.
 * `Entity` is the entity that should be written.
+
+!!! warning "A `Client` result is an unconditional overwrite"
+    When a resolver returns `ConflictResolutionResult.Client`, the entity is written without an `If-Match` header.  If another client updates the entity after the conflict was detected but before the forced write arrives, that update is silently lost.  This is fine for a plain "client wins" policy, but it is not safe when the entity is a merge of client and server values.  Return `ConflictResolutionResult.Merged` for merges instead.  If the server entity changes again before the merged write arrives, the service responds with another conflict and the resolver is called again with the newer server entity.  After 5 attempts, the operation is left in the queue marked as failed.  A `Merged` result requires the server entity to have a version; if it does not, the operation is marked as failed.
 
 To provide another example, let's say you want to allow updates from the client for all columns except for a `Title` column.  You can do this as follows:
 
@@ -248,12 +258,12 @@ public class CustomConflictResolver : IConflictResolver<Movie>
   public async Task<ConflictResolution> ResolverConflictAsync(Movie? clientObject, Movie? serverObject, CancellationToken cancellationToken = default)
   {
     clientObject.Movie = serverObject.Movie;
-    return new ConflictResolution { Result = ConflictResolutionResult.Client, Entity = clientObject };
+    return new ConflictResolution { Result = ConflictResolutionResult.Merged, Entity = clientObject };
   }
 }
 ```
 
-Here, we copy the server value of the movie title to the client before returning so that the title is preserved.
+Here, we copy the server value of the movie title to the client before returning so that the title is preserved.  Because the result is a merge of the client and server entities, we return `ConflictResolutionResult.Merged` so that the write is conditional on the server version we merged against.
 
 ## Pulling data from the service
 
@@ -277,6 +287,8 @@ As with the push operations, you can optionally specify a `PullOptions` object f
     The context is not thread-safe.  For that reason, service requests are done in parallel, but database updates are done sequentially.  This is normally not a problem because the service requests take much longer than the local database updates.
 
 Service requests are paged and each page contains a link to the next page of results. This means that consecutive service requests for a single entity are serialized, but service requests for different entities can be parallelized.  After each service request, the delta-token for the request is updated.  The delta-token is stored in the `DatasyncDeltaTokens` DbSet on the database context.  For normal requests, the Id is the full name of the entity type.  If a query ID is used (see below), then the Id is `q-<entityType>-<queryId>`.  The `Value` property of the delta-token is the maximum value of the `UpdatedAt` property for the entity data set, expressed as the number of milliseconds since the UNIX epoch.
+
+Soft-deleted entities are only requested from the service (using `__includedeleted=true`) when they could result in a local deletion: that is, when a delta-token exists for the request, or when the local table already contains entities.  On an initial pull into an empty table, soft-deleted entities are not requested, which reduces the amount of data transferred when the service holds a large number of soft-deleted entities.  This also means the total count reported in synchronization events for an initial pull only includes entities that are not deleted.
 
 If you need to pull data from the same entity using different searches, you need to use a pull configurator.
 

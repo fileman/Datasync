@@ -29,13 +29,14 @@ permissions:
 
 jobs:
   android:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -95,7 +96,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_${{ env.RequiredXcodeVersion }}.app
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 

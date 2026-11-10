@@ -17,13 +17,14 @@ permissions:
 
 jobs:
   stale:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     permissions:
       issues: write
       pull-requests: write
 
     steps:
-    - uses: actions/stale@v10
+    - uses: actions/stale@v11
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 21
@@ -38,7 +39,7 @@ jobs:
         stale-issue-label: 'stale'
         stale-pr-label: 'stale'
 
-    - uses: actions/stale@v10
+    - uses: actions/stale@v11
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 5

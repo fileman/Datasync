@@ -6,6 +6,13 @@
   <PropertyGroup>
     <DotNetVersion>10.0.14</DotNetVersion>
     <EFCoreVersion>10.0.14</EFCoreVersion>
+    <!--
+      Lock to .NET 10: every .NET / EF Core dependency is a range capped below 11.0, so the packed
+      nuspec reads [10.0.x, 11.0) and consumers can never resolve a .NET 11 package through us.
+      Restore still resolves the lower bound; raise DotNetVersion / EFCoreVersion to move it.
+    -->
+    <DotNetVersionRange>[$(DotNetVersion), 11.0)</DotNetVersionRange>
+    <EFCoreVersionRange>[$(EFCoreVersion), 11.0)</EFCoreVersionRange>
     <TestContainersVersion>4.16.0</TestContainersVersion>
     <ODataVersion>8.4.4</ODataVersion>
   </PropertyGroup>
@@ -14,18 +21,18 @@
     <PackageVersion Include="AwesomeAssertions" Version="9.6.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="LiteDB" Version="5.0.21" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(DotNetVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(DotNetVersionRange)" />
     <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.5.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotNetVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotNetVersionRange)" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.64.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCoreVersion)" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCoreVersionRange)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCoreVersionRange)" />
     <!--
       Microsoft.EntityFrameworkCore.SqlServer floats a transitive dependency on
       Microsoft.Data.SqlClient 6.1.7, which pulls in System.Security.Cryptography.Pkcs 9.0.11. That
@@ -36,10 +43,10 @@
       references. Remove this pin once Microsoft.EntityFrameworkCore.SqlServer floats a patched SqlClient.
     -->
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.8" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(DotNetVersionRange)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetVersionRange)" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotNetVersionRange)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetVersionRange)" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0" />
     <PackageVersion Include="Microsoft.OData.Core" Version="$(ODataVersion)" />
     <!--
@@ -69,11 +76,11 @@
     -->
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.3.1" />
-    <PackageVersion Include="System.Formats.Asn1" Version="$(DotNetVersion)" />
+    <PackageVersion Include="System.Formats.Asn1" Version="$(DotNetVersionRange)" />
     <PackageVersion Include="System.Linq.Async" Version="7.0.1" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
-    <PackageVersion Include="System.Text.Json" Version="$(DotNetVersion)" />
-    <PackageVersion Include="System.Threading.Tasks.Dataflow" Version="$(DotNetVersion)" />
+    <PackageVersion Include="System.Text.Json" Version="$(DotNetVersionRange)" />
+    <PackageVersion Include="System.Threading.Tasks.Dataflow" Version="$(DotNetVersionRange)" />
     <PackageVersion Include="TestContainers.MongoDb" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.MsSql" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="$(TestContainersVersion)" />
